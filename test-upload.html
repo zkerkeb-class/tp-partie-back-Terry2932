@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Upload Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .type-checkbox {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .type-checkbox label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+        }
+        
+        .type-checkbox input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        
+        .response.show {
+            display: block;
+        }
+        
+        .response.success {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+        
+        .response.error {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .response h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .response p {
+            color: #555;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .response pre {
+            background: white;
+            padding: 15px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔴 Créer un Pokémon avec Image</h1>
+        
+        <form id="pokemonForm">
+            <!-- Basic Info -->
+            <div class="grid">
+                <div class="form-group">
+                    <label for="id">ID du Pokémon *</label>
+                    <input type="number" id="id" name="id" required min="1" placeholder="ex: 152">
+                </div>
+                
+                <div class="form-group">
+                    <label for="english">Nom Anglais *</label>
+                    <input type="text" id="english" name="english" required placeholder="ex: Chikorita">
+                </div>
+                
+                <div class="form-group">
+                    <label for="japanese">Nom Japonais *</label>
+                    <input type="text" id="japanese" name="japanese" required placeholder="ex: チコリータ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="chinese">Nom Chinois *</label>
+                    <input type="text" id="chinese" name="chinese" required placeholder="ex: 菊草叶">
+                </div>
+                
+                <div class="form-group">
+                    <label for="french">Nom Français *</label>
+                    <input type="text" id="french" name="french" required placeholder="ex: Germignon">
+                </div>
+            </div>
+            
+            <!-- Types -->
+            <div class="form-group full-width">
+                <label>Types *</label>
+                <div class="type-checkbox">
+                    <label><input type="checkbox" name="type" value="Grass"> Grass</label>
+                    <label><input type="checkbox" name="type" value="Fire"> Fire</label>
+                    <label><input type="checkbox" name="type" value="Water"> Water</label>
+                    <label><input type="checkbox" name="type" value="Electric"> Electric</label>
+                    <label><input type="checkbox" name="type" value="Psychic"> Psychic</label>
+                    <label><input type="checkbox" name="type" value="Fighting"> Fighting</label>
+                    <label><input type="checkbox" name="type" value="Flying"> Flying</label>
+                    <label><input type="checkbox" name="type" value="Poison"> Poison</label>
+                    <label><input type="checkbox" name="type" value="Ground"> Ground</label>
+                    <label><input type="checkbox" name="type" value="Rock"> Rock</label>
+                    <label><input type="checkbox" name="type" value="Bug"> Bug</label>
+                    <label><input type="checkbox" name="type" value="Ghost"> Ghost</label>
+                    <label><input type="checkbox" name="type" value="Ice"> Ice</label>
+                    <label><input type="checkbox" name="type" value="Dragon"> Dragon</label>
+                    <label><input type="checkbox" name="type" value="Dark"> Dark</label>
+                    <label><input type="checkbox" name="type" value="Steel"> Steel</label>
+                    <label><input type="checkbox" name="type" value="Fairy"> Fairy</label>
+                    <label><input type="checkbox" name="type" value="Normal"> Normal</label>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <h3 style="margin-top: 30px; margin-bottom: 15px; color: #333;">Stats de Base *</h3>
+            <div class="grid">
+                <div class="form-group">
+                    <label for="hp">HP</label>
+                    <input type="number" id="hp" name="hp" required min="0" placeholder="45">
+                </div>
+                
+                <div class="form-group">
+                    <label for="attack">Attaque</label>
+                    <input type="number" id="attack" name="attack" required min="0" placeholder="49">
+                </div>
+                
+                <div class="form-group">
+                    <label for="defense">Défense</label>
+                    <input type="number" id="defense" name="defense" required min="0" placeholder="65">
+                </div>
+                
+                <div class="form-group">
+                    <label for="spatk">Atk. Spéciale</label>
+                    <input type="number" id="spatk" name="spatk" required min="0" placeholder="49">
+                </div>
+                
+                <div class="form-group">
+                    <label for="spdef">Déf. Spéciale</label>
+                    <input type="number" id="spdef" name="spdef" required min="0" placeholder="65">
+                </div>
+                
+                <div class="form-group">
+                    <label for="speed">Vitesse</label>
+                    <input type="number" id="speed" name="speed" required min="0" placeholder="45">
+                </div>
+            </div>
+            
+            <!-- Image -->
+            <div class="form-group full-width">
+                <label for="image">Image du Pokémon (optionnel)</label>
+                <input type="file" id="image" name="image" accept="image/*">
+                <div class="preview" id="preview"></div>
+            </div>
+            
+            <button type="submit">✅ Créer le Pokémon</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #667eea;">Création en cours...</p>
+        </div>
+        
+        <div class="response" id="response"></div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('pokemonForm');
+        const responseDiv = document.getElementById('response');
+        const loadingDiv = document.getElementById('loading');
+        const imageInput = document.getElementById('image');
+        const previewDiv = document.getElementById('preview');
+        
+        // Aperçu de l'image
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewDiv.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewDiv.innerHTML = '';
+            }
+        });
+        
+        // Soumettre le formulaire
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validation: au moins un type sélectionné
+            const types = Array.from(document.querySelectorAll('input[name="type"]:checked'))
+                .map(el => el.value);
+            
+            if (types.length === 0) {
+                showResponse('Sélectionnez au moins un type!', 'error');
+                return;
+            }
+            
+            // Préparer les données
+            const pokemonData = {
+                id: parseInt(document.getElementById('id').value),
+                name: {
+                    english: document.getElementById('english').value,
+                    japanese: document.getElementById('japanese').value,
+                    chinese: document.getElementById('chinese').value,
+                    french: document.getElementById('french').value,
+                },
+                type: types,
+                base: {
+                    HP: parseInt(document.getElementById('hp').value),
+                    Attack: parseInt(document.getElementById('attack').value),
+                    Defense: parseInt(document.getElementById('defense').value),
+                    SpecialAttack: parseInt(document.getElementById('spatk').value),
+                    SpecialDefense: parseInt(document.getElementById('spdef').value),
+                    Speed: parseInt(document.getElementById('speed').value),
+                }
+            };
+            
+            // Créer FormData
+            const formData = new FormData();
+            formData.append('pokemonData', JSON.stringify(pokemonData));
+            
+            // Ajouter l'image si présente
+            if (imageInput.files.length > 0) {
+                formData.append('image', imageInput.files[0]);
+            }
+            
+            // Afficher le chargement
+            loadingDiv.classList.add('show');
+            responseDiv.classList.remove('show', 'success', 'error');
+            
+            try {
+                const response = await fetch('http://localhost:3000/pokemons/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                loadingDiv.classList.remove('show');
+                
+                if (response.ok) {
+                    showResponse(
+                        `✅ Pokémon créé avec succès (ID: ${result.id})`,
+                        'success',
+                        JSON.stringify(result, null, 2)
+                    );
+                    form.reset();
+                    previewDiv.innerHTML = '';
+                } else {
+                    showResponse(
+                        `❌ Erreur: ${result.error}`,
+                        'error',
+                        JSON.stringify(result, null, 2)
+                    );
+                }
+            } catch (error) {
+                loadingDiv.classList.remove('show');
+                showResponse(
+                    `❌ Erreur réseau: ${error.message}`,
+                    'error'
+                );
+            }
+        });
+        
+        function showResponse(message, type, details = '') {
+            responseDiv.className = `response show ${type}`;
+            responseDiv.innerHTML = `
+                <h3>${message}</h3>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+        }
+    </script>
+</body>
+</html>

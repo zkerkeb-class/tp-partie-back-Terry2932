@@ -26,7 +26,15 @@ const pokemonSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: true,
+        required: false,
+    },
+    imageData: {
+        type: String,
+        default: null,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
     },
 });
 
